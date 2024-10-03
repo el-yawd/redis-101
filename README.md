@@ -4,7 +4,7 @@
 
 Bem-vind@ ao minicurso de redis!
 
-A ideia é te dar um roadmap e explicação sobre o básico sobre o banco de dados mais quente do mercado. Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básica e como setar seu próprio _cluster redir ®_.
+A ideia é te dar um roadmap e explicação sobre o básico do banco de dados mais quente do mercado. Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básica e como setar seu próprio _cluster redir ®_.
 
 Esse minicurso não vai esgotar tudo o que se têm para dizer sobre redis, então recomendo fortemente que
 você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL. Bons lugares para se começar: [documentação oficial](https://redis.io/docs/latest/), [código fonte](https://github.com/redis/redis) e [wikipedia](https://en.wikipedia.org/wiki/Redis). Espero que goste :)
@@ -49,7 +49,7 @@ docker exec -it redis-stack redis-cli
 
 ### [Data Types](https://redis.io/docs/latest/develop/data-types)
 
-Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`. Vamos passar por cima de cada uma delas:
+Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima de cada uma delas, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands` não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curios@ poderá buscar mais sobre cada uma [aqui](https://redis.io/docs/latest/commands/):
 
 #### [Strings](https://redis.io/docs/latest/develop/data-types/strings/)
 
@@ -90,4 +90,59 @@ INCRBY user:post-1:views 42
 
 Incrementa o valor +42, (você também pode incrementar números negativos).
 
+### [Lists](https://redis.io/docs/latest/develop/data-types/lists/)
 
+Listas em redis são [listas ligadas](https://en.wikipedia.org/wiki/Linked_list) com ponteiros para o início e final da fila, isso significa que operações de _pop_ e _push_ são feitas em _O(1)_. O seu _trade-off_ são operações que utilizam índices, pois cria a necessidade de percorrer cada elemento da lista. O redis fornece alternativas caso necessitemos utilizar indíces mas isso vai ficar pra depois :) 
+
+Para inserirmos um novo elemento em uma lista utilizamos o comando `LPUSH` ou `RPUSH`, por exemplo:
+
+```bash
+LPUSH fila-espera:cafe Alice Bob Joe
+```
+
+> `LPUSH` insere um novo elemento no início da lista (_head_) e `RPUSH` faz o mesmo mas no final da fila (_tail_).
+
+Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsbiliza por criar.
+
+Além disso, `LPUSH` e `RPUSH` são _comandos variáticos_ o que significa que somos livres para inserir um ou mais elementos de uma só vez.
+
+Para removermos um elemento da lista utilizamos:
+
+```bash
+LPOP fila-espera:cafe 
+```
+> A mesma lógica de pushs se aplica aqui: `LPOP` remove elementos no início e `RPOP` no final.
+
+Para verificarmos elementos de uma lista utlizamos `LRANGE` (sim `L` é usando tanto como _left_ quanto _list_ that's life). 
+
+```bash
+LRANGE fila-espera:cafe 0 3
+```
+
+O comando acima busca os 4 primeiros elementos da lista, o primeiro argumento é o índice do início de nosso _range_ e o segundo é o final do _range_. Também podemos utilizar números negativos, então o redis começa a contar de "trás pra frente": -1 é o último elemento, -2 o penúltimo e assim por diante.
+
+```bash
+LRANGE fila-espera:cafe 0 -1
+
+# Busca todos os elementos da lista
+```
+
+Um caso de uso comum para lista em redis é mantes o n últimos elementos de alguma coisa. Tweets por exemplo [[5]](https://www.infoq.com/presentations/Real-Time-Delivery-Twitter/). O que queremos é uma _capped collection_ nesse caso uma _capped list_ (literalmente lista limitada), utilizaremos `LTRIM`
+para fazer isso.
+
+`LTRIM` é muito parecido com `LRANGE` com a única diferença de que `LRANGE` é feito para consultas (logo não modifica a lista) e `LTRIM` literalmente apara tudo o que não estiver dentro do range, exemplo:
+
+```bash
+LPUSH last:3:custumers Chris Ana Anthony
+
+LRANGE last:3:custumers 0 2
+
+LPUSH last:3:custumers Paul
+
+LTRIM last:3:custumers 0 2
+# cuidado com erros off-by-one 
+
+LRANGE last:3:custumers 0 2
+```
+
+Seguindo essa sequencia vemos que Chris é "aparado" da lista visto que é o 4° mais recente.
