@@ -1,6 +1,6 @@
 # redis-101
 
-![logo do redis](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.stackery.io%2Fblog%2Fredis-cache-cluster-support%2F&psig=AOvVaw3J3talUcdTFro3224ZGSHS&ust=1728050390768000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLi_gMCv8ogDFQAAAAAdAAAAABAE)
+![logo do redis](https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg)
 
 Bem-vind@ ao minicurso de redis!
 
