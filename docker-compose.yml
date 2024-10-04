@@ -1,0 +1,18 @@
+services:
+  redis:
+    image: redis:7.4
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./data:/sla
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  redis-insight:
+    image: redislabs/redisinsight:2.58
+    container_name: redis-insight
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
