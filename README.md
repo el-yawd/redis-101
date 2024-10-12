@@ -220,3 +220,7 @@ se vermos o conteúdo desse diretório com `ls appendonlydir` veremos que temos 
 Para saber mais sobre o assunto de persistência recomendo começar por [[aqui]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439) e [[aqui]](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/).
 
 
+## Sistemas Distribuídos
+
+Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados. Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição. 
+
