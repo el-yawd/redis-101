@@ -13,7 +13,7 @@ você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL.
 
 Mas afinal, o que é o redis? 
 
-Ele é um banco de dados _in-memory_ com persistência opcional bem simples _(yet powerful)_. Você pode pensar nele como um **servidor de estrutura de dados**, isso significa que: 
+Ele é um banco de dados _in-memory_ com pesistência opcional bem simples _(yet powerful)_. Você pode pensar nele como um **servidor de estrutura de dados**, isso significa que: 
 
 > O redis provê acesso a estruturas de dados mutáveis através de um conjunto de comandos que são enviados usando um modelo cliente-servidor. Dessa forma, diferentes processos podem realizar pesquisas e modificações nas mesmas estruturas de dados de forma compartilhada. [[1]](https://github.com/redis/redis?tab=readme-ov-file#what-is-redis)
 
@@ -24,24 +24,13 @@ Por conta disso ele é MUITO utilizado como servidor de cache [[2]](https://www.
 
 Vou ser sincero, não quero perder tempo com isso, siga as [instruções](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) e seja feliz. 
 
-Durante o minicurso irei assumir que você está em um ambiente UNIX e utilizar docker, docker compose, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e em [compose.docs](https://docs.docker.com/compose/install/) e instala os dois. Voltou? Ótimo! Para rodar o redis basta: 
+Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar: 
 
-1. Clonar este repositório:
 ```bash
-git clone git@github.com:diegoreis42/redis-101.git
+    docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
 ```
 
-2. Ir para o diretório do projeto:
-```bash
-cd redis-101
-```
-
-3. Rodar as instâncias de redis e redis insight:
-```bash
-docker compose up 
-```
-
-Esse último comando vai criar um único container de docker e expor duas portas:
+Esse comando vai criar um único container de docker e expor duas portas:
 - `6379` porta padrão do servidor redis;
 - `8001` porta para o _Redis Insight ®_ ;
 
@@ -53,14 +42,10 @@ majoritariamente a linha de comando. Chega de papo, bora lá!
 Para se conectar no _REPL_ do servidor redis basta rodar:
 
 ```bash
-docker exec -it redis redis-cli
+docker exec -it redis-stack redis-cli
 ```
 
 > INFO `redis-cli` é a ferramenta de linha de comando do redis. Você pode saber mais sobre ela [aqui](https://redis.io/docs/latest/operate/rs/references/cli-utilities/redis-cli/) 
-
-Digite `PING` se a reposta for `PONG`, deu bom 😎
-
-Adendo: comando redis, assim como SQL, são _case insensitive_ o que significa que podemos escrever tudo em "caixa-baixa", durante o minicurso vou utilizar "caixa-alta" para seguir um padrão, mas você é livre para fazer da forma que preferir :) 
 
 ### [Data Types](https://redis.io/docs/latest/develop/data-types)
 
@@ -162,62 +147,76 @@ LRANGE last:3:custumers 0 2
 
 Seguindo essa sequencia vemos que Chris é "aparado" da lista visto que é o 4° mais recente.
 
-<!-- Incluir mais estruturas de dados aqui -->
 
-# Persistência
+## Persistência
 
-So far so good, vimos as principais estruturas de dados que o redis nos fornece mas ainda existe alguns conceitos que precisamos explorar. Um deles é a **persistência**, lembra quando eu disse que o redis é um banco de dados _in-memory_ com persistência opcional, pois é, vamos ver como configurá-la!
+Lembra quando eu disse que redis possui `pesistência opcional`? Vamos ver como configurá-la agora! O Redis tem 4 tipos 
+de persistência:
 
-### Tipos de persistência
+- **RDB (Redis Database)**: Snapshots que são tirados em intervalos específicos;
+- **AOF (Append Only File)**: Arquivo que faz log de toda operação de escrita, que podem ser replicadas quando o servidor reestarta, reconstruindo
+  seu estado original.
+- **Sem persistência**: Autoexplicativo né. Se o servidor cair não tem jeito de recuperar os dados.
+- **RDB + AOF**: Combinação das estratégias de _logging_ e _snapshotting_
 
-Persistência se refere a escrever dados em um _storage_ durável, como um HD ou SSD. O redis nos fornece 4 opções [[6]](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/):
+Você pode ler mais sobre seus _trade-offs_ [aqui](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/).
 
-- **RDB(Redis Database)**: snapshots _point-in-time_ em intervalos específicos;
-- **AOF(Append Only File)**: arquivo de log que "appenda" logs de escrita. Essas operações podem ser replicadas quando o servidor restartar para reconstruir o banco com o dataset original. 
-- **Sem persistência**: autoexplicativo
-- **RDB + AOF**: estratégias RDB e AOF combinadas na mesma instância.
+### RDB
 
-Você pode ler os _trade-offs_ de cada estratégia na documentação. 
+Redis é _single-threaded_ então como podemos fazer o snapshot sem bloquear a _thread_ e perder operações? O processo realiza um _fork()_ e esse _fork()_ que realiza essa operação, enquanto o processo pai continua ativo recebendo requisições.[[6]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439)
 
-### Snapshots
 
-Snapshots funcionam como "máquinas do tempo", você pode tirar quantas "fotos" do seu banco quando quiser na frequência que quiser e pode restaurar seu banco em qualquer ponto do tempo.[[7]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439)
+![gif explicando esse funcionamento](https://miro.medium.com/v2/resize:fit:720/format:webp/1*0fQ1UKmtXqgIVXkTWJLorw.gif)
 
-Redis é _single-threaded_, para que o processo de snapshotting não atrapalhe os clientes ele faz um `fork()` de si e o processo filho se encarrega dessa tarefa. Snapshots são guardados no arquivo binário `dump.rdb`.
+Se você reparou na raíz do projeto existe um arquivo chamado `redis.conf`, lá
+podemos configurar nosso servidor redis. Ele também possui comentários muito 
+úteis que os próprios desenvolvedores disponibilizaram para que a comunidade entenda melhor cada parâmetro e se funcionamento interno.
 
-![ilustração do funcionamento de snapshots no redis](https://miro.medium.com/v2/resize:fit:720/format:webp/1*0fQ1UKmtXqgIVXkTWJLorw.gif)
+Abra-o e pesquise por `SNAPSHOTTING` essa seção nos fornece toda a configuração relacionada ao `RDB`, descomente a linha 440 e a mude para `save 5 1`. Ela 
+significa que a cada 5s iremos realizar um snapshot se ao menos uma _key_ mudou.
 
-Vamos por a mão na massa agora. Se você é ~minimamente~ curios@ viu que temos um arquivo redis.conf na raíz do projeto, ele é um template que o redis disponibiliza [aqui](https://raw.githubusercontent.com/redis/redis/unstable/redis.conf) com tudo o que podemos configurar em nossos servidores (recomendo fortemente que leia os comentários desse arquivo para afiar seu entendimento). Abra o arquivo `redis.conf` no seu editor de 1texto favorito e busque por `SNAPSHOTTING`, essa seção descreve perfeitamente como o redis realiza snapshotting e tudo o que ocorre em volta disso: compressão, tratamento em casos de erro, replicação do arquivo e muito mais.
+> WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para expeerimentarmos mais facilmente. 
 
-Por hora vamos nos preocupar somente com a linha `440` onde definimos em qual frequência e o mínimo de mudanças necessárias para realizar o snapshot, descomente essa linha e a altere para:
-
-```conf
-save 60 1 
-
-# Ela diz: Faça um snapshot a cada 1m (60s) se ao menos uma mudança foi feita
-```
-
-Eu sei, essa é uma frequência *muito* excessiva; em um ambiente real essa quantidade não é recomendada, mas como estamos explorando ~_just for fun_~ tá perfeito.
-
-Restarte seus containers:
+Bacana, reestarte seu servidor com `docker compose restart` e o acesse com `docker compose exec -it redis redis-cli`, para nos certificarmos que estamos com a nova configuração rode:
 
 ```bash
-docker compose restart
+CONFIG GET save
+
+# Resposta esperada
+# 1) "save"
+# 2) "5 1"
 ```
 
-acesse o _REPL_ dentro do container com:
+Cool, crie uma nova chave e espere 5s. Em outro terminal rode:
 
 ```bash
-docker exec -it redis redis-cli
+docker compose cp redis:/data/dump.rdb ./dump.rdb
 ```
 
-digite: `CONFIG GET save`, se o valor que configuramos aparecer significa que o redis reconheceu corretamente nosso arquivo de configuração!
+Esse comando copia o arquivo de dump para nosso diretório atual. Com ele podemos restaurar nossos dados caso o servidor caia :)
 
-Agora vamos ver funcionando:
+### AOF
 
+![gif do funcionamento do AOF](https://miro.medium.com/v2/resize:fit:720/format:webp/1*-nu-a_xIAH4OwIVdkszVzA.gif)
 
+Um problema de snapshotting é que se o sevidor cair perdemos os dados que foram escritos depois do último snapshot, se não podemos perder nem um dado se quer devemos considerar utilizar AOF.
 
+Para habilitá-lo vá em `redis.conf` e busque por `APPEND ONLY MODE` essa é a seção de configuração do AOF. Mude a linha `appendonly no` para `appendonly yes`.
 
+Resete o servidor, o acesse e faça alguma operação de escrita.
 
+Para recuperar o diretŕio de logs rode:
+
+```bash
+❯ docker compose cp redis:data/appendonlydir ./appendonlydir
+```
+
+se vermos o conteúdo desse diretório com `ls appendonlydir` veremos que temos 3 arquivos, o que são eles:
+
+- `appendonly.aof.1.base.rdb`: É um snapshot de todo o banco no momento em que esse arquivo foi criado.
+- `appendonly.aof.1.incr.aof`: Todos os comandos que alteraram o banco que foram rodados depois do snapshot.
+- `appendonly.aof.manifest`: Gerencia os outros arquivos e garante a ordem em que devem ser executados.
+  
+Para saber mais sobre o assunto de persistência recomendo começar por [[aqui]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439) e [[aqui]](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/).
 
 
