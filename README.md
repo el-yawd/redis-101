@@ -2,9 +2,10 @@
 
 ![logo do redis](https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg)
 
-Bem-vind@ ao minicurso de redis!
+Bem-vindo ao minicurso de redis!
 
-A ideia é te dar um roadmap e explicação sobre o básico do banco de dados mais quente do mercado. Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básica e como setar seu próprio _cluster redir ®_.
+A ideia é te dar um roadmap e explicação sobre o básico do banco de dados mais quente do mercado.
+Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básicas, pesistência e como setar seu próprio _cluster redir ®_.
 
 Esse minicurso não vai esgotar tudo o que se têm para dizer sobre redis, então recomendo fortemente que
 você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL. Bons lugares para se começar: [documentação oficial](https://redis.io/docs/latest/), [código fonte](https://github.com/redis/redis) e [wikipedia](https://en.wikipedia.org/wiki/Redis). Espero que goste :)
@@ -27,7 +28,7 @@ Vou ser sincero, não quero perder tempo com isso, siga as [instruções](https:
 Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar: 
 
 ```bash
-    docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+    docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:7.4
 ```
 
 Esse comando vai criar um único container de docker e expor duas portas:
@@ -49,7 +50,7 @@ docker exec -it redis-stack redis-cli
 
 ### [Data Types](https://redis.io/docs/latest/develop/data-types)
 
-Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima de cada uma delas, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands` não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curios@ poderá buscar mais sobre cada uma [aqui](https://redis.io/docs/latest/commands/):
+Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima das principais, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands` não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curios@ poderá buscar mais sobre cada uma [aqui](https://redis.io/docs/latest/commands/):
 
 #### [Strings](https://redis.io/docs/latest/develop/data-types/strings/)
 
@@ -102,7 +103,7 @@ LPUSH fila-espera:cafe Alice Bob Joe
 
 > `LPUSH` insere um novo elemento no início da lista (_head_) e `RPUSH` faz o mesmo mas no final da fila (_tail_).
 
-Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsbiliza por criar.
+Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsbiliza por criar, isso se aplica para todo data type :).
 
 Além disso, `LPUSH` e `RPUSH` são _comandos variáticos_ o que significa que somos livres para inserir um ou mais elementos de uma só vez.
 
@@ -147,6 +148,57 @@ LRANGE last:3:custumers 0 2
 
 Seguindo essa sequencia vemos que Chris é "aparado" da lista visto que é o 4° mais recente.
 
+### [Sets](https://redis.io/docs/latest/develop/data-types/sets/)
+
+Sets (conjuntos) é uma coleção não ordenada de strings únicas. Elas são muito úteis para representar
+pertencimento de um item a um conjunto, valores únicos, etc.
+
+Vamos adicionar um novo item no set com:
+
+```bash
+SADD nosql:students Joaozinho Mariazinha
+```
+
+Para checarmos pertencimento utilizamos:
+
+```bash
+SISMEMBER nosql:students Joaozinho
+
+# (integer) 1
+
+SISMEMBER nosql:students Jack
+# (integer) 0
+```
+
+Podemos também fazer operações de intersecção!
+
+```bash
+SADD bd-2:students Joaozinho Caio
+
+SINTER nosql:students bd-2:students
+
+# 1) "Joaozinho"
+```
+
+E cardinalidade:
+
+```bash
+SCARD nosql:students
+
+# (integer) 2
+```
+
+Para removermos um elemento:
+
+```bash
+SREM nosql:students Joaozinho
+
+SMEMBERS nosql:students # Lista todos os elementos da lista
+```
+
+Para maioria das operações são _O(1)_, contudo para sets grandes
+deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui
+complexidade _O(n)_. 
 
 ## Persistência
 
@@ -177,7 +229,11 @@ significa que a cada 5s iremos realizar um snapshot se ao menos uma _key_ mudou.
 
 > WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para expeerimentarmos mais facilmente. 
 
-Bacana, reestarte seu servidor com `docker compose restart` e o acesse com `docker compose exec -it redis redis-cli`, para nos certificarmos que estamos com a nova configuração rode:
+Bacana, a partir de agora vamos utilizar `docker compose`, ele é uma extensão de docker que nos permite declarativamente configurar
+múltiplos containers, se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/). 
+
+Pare a instância que estavamos rodando com `docker container stop redis-stack` e
+utilize `docker compose up` e o acesse com `docker compose exec -it redis redis-cli`, para nos certificarmos que estamos com a nova configuração rode:
 
 ```bash
 CONFIG GET save
