@@ -28,7 +28,7 @@ Vou ser sincero, não quero perder tempo com isso, siga as [instruções de inst
 Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar: 
 
 ```bash
-    docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:7.4
+    docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
 ```
 
 Esse comando vai criar um único container de docker e expor duas portas:
