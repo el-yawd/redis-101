@@ -200,6 +200,109 @@ Para maioria das operações são _O(1)_, contudo para sets grandes
 deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui
 complexidade _O(n)_. 
 
+### [Hashes](https://redis.io/docs/latest/develop/data-types/hashes/)
+
+
+Hashes em redis funcionam como uma coleção de `strings`, podemos usa-los 
+para representar objetos básicos dentre outros dados.
+
+```bash
+HSET aluno:1 nome Jacob curso "Sistemas de informacao" hobbie "virar lobisomem"
+
+HGETALL aluno:1
+# 1) "nome"
+# 2) "Jacob"
+# 3) "curso"
+# 4) "Sistemas de informacao"
+# 5) "hobbie"
+# 6) "virar lobisomem"
+
+HGET aluno:1 nome
+# "Jacob"
+```
+
+> Note: Você deve ter reparado que utilizamos ':' para separar tokens nos nomes, isso é 
+> apenas uma convenção. Nomes e chaves devem ter eles mesmos significado, por exemplo, 'aluno:1' 
+> provavelmente é um aluno com id 1, o redis não faz a mínima ideia desse id sua aplicação que deve
+> se responsbilizar por manter um padrão coerente e que não sobrescreva incorretamente dados anteriores.
+
+Também podemos manter contadores em nossos "objetos"
+
+```bash
+HINCRBY aluno:1 faltas 1
+
+HGETALL aluno:1
+# 1) "nome"
+# 2) "Jacob"
+# 3) "curso"
+# 4) "Sistemas de informacao"
+# 5) "hobbie"
+# 6) "virar lobisomem"
+# 7) "faltas"
+# 8) "1"
+```
+
+## [Sorted Sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/)
+
+Lembra quando eu disse que o redis fornecia uma estrutura de dados para usar índices. 
+Pois bem, _voilà_.
+
+_Sorted sets_ são como um mix entre _Sets_ e _Hashes_, são formados por
+elementos não-repetíveis, porém agora, cada elemento é associado a um _float point_
+chamado _score_ como um _hash_. Este score é utilizado para comparar valores então se:
+`A > B` então `A.score > B.score`. Um fator interessante é que os elementos são guardados
+já ordenados, então buscas ordenadas não custam tanto.
+
+Para incluir novos elementos:
+
+```bash
+ZADD brasileirao:tabela 0 Botafogo 1 Palmeiras 3 Fortaleza 4 Flamengo
+
+ZRANGE brasileirao:tabela 0 -1
+# 1) "Botafogo"
+# 2) "Palmeiras"
+# 3) "Fortaleza"
+# 4) "Flamengo"
+
+ZREVRANGE brasileirao:tabela 0 -1
+# 1) "Flamengo"
+# 2) "Fortaleza"
+# 3) "Palmeiras"
+# 4) "Botafogo"
+```
+
+Podemos passar o argumento `WITHSCORES` nos comandos de range para também 
+devolver os ranges:
+
+```bash
+ZRANGE brasileirao:tabela 0 -1 WITHSCORES
+
+# 1) "Botafogo"
+# 2) "0"
+# 3) "Palmeiras"
+# 4) "1"
+# 5) "Fortaleza"
+# 6) "3"
+# 7) "Flamengo"
+# 8) "4"
+```
+
+Também podemos realizar comando em scores:
+
+```bash
+ZRANGEBYSCORE brasileirao:tabela -inf 3 # busca todos os elementos com score entre -infinto e 3.
+# 1) "Botafogo"
+# 2) "Palmeiras"
+# 3) "Fortaleza"
+```
+
+Também podemos buscar o score de um valor com:
+
+```bash
+ZRANK brasileirao:tabela Palmeiras
+# (integer) 1
+```
+
 ## Persistência
 
 Lembra quando eu disse que redis possui `pesistência opcional`? Vamos ver como configurá-la agora! O Redis tem 4 tipos 
