@@ -5,7 +5,7 @@
 Bem-vindo ao minicurso de redis!
 
 A ideia é te dar um roadmap e explicação sobre o básico do banco de dados mais quente do mercado.
-Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básicas, pesistência e como setar seu próprio _cluster redir ®_.
+Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básicas, pesistência e como setar seu próprio _cluster redis ®_.
 
 Esse minicurso não vai esgotar tudo o que se têm para dizer sobre redis, então recomendo fortemente que
 você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL. Bons lugares para se começar: [documentação oficial](https://redis.io/docs/latest/), [código fonte](https://github.com/redis/redis) e [wikipedia](https://en.wikipedia.org/wiki/Redis). Espero que goste :)
@@ -23,7 +23,7 @@ Por conta disso ele é MUITO utilizado como servidor de cache [[2]](https://www.
 
 # Instalação
 
-Vou ser sincero, não quero perder tempo com isso, siga as [instruções](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) e seja feliz. 
+Vou ser sincero, não quero perder tempo com isso, siga as [instruções de instalação](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) e seja feliz. 
 
 Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar: 
 
@@ -50,7 +50,7 @@ docker exec -it redis-stack redis-cli
 
 ### [Data Types](https://redis.io/docs/latest/develop/data-types)
 
-Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima das principais, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands` não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curios@ poderá buscar mais sobre cada uma [aqui](https://redis.io/docs/latest/commands/):
+Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima das principais, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands`; não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curioso poderá buscar mais sobre cada uma [na documentação de comandos](https://redis.io/docs/latest/commands/):
 
 #### [Strings](https://redis.io/docs/latest/develop/data-types/strings/)
 
@@ -103,7 +103,7 @@ LPUSH fila-espera:cafe Alice Bob Joe
 
 > `LPUSH` insere um novo elemento no início da lista (_head_) e `RPUSH` faz o mesmo mas no final da fila (_tail_).
 
-Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsbiliza por criar, isso se aplica para todo data type :).
+Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsabiliza por criar, isso se aplica para todo data type :).
 
 Além disso, `LPUSH` e `RPUSH` são _comandos variáticos_ o que significa que somos livres para inserir um ou mais elementos de uma só vez.
 
@@ -218,16 +218,16 @@ Você pode ler mais sobre seus _trade-offs_ [aqui](https://redis.io/docs/latest/
 Redis é _single-threaded_ então como podemos fazer o snapshot sem bloquear a _thread_ e perder operações? O processo realiza um _fork()_ e esse _fork()_ que realiza essa operação, enquanto o processo pai continua ativo recebendo requisições.[[6]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439)
 
 
-![gif explicando esse funcionamento](https://miro.medium.com/v2/resize:fit:720/format:webp/1*0fQ1UKmtXqgIVXkTWJLorw.gif)
+![gif explicando seu funcionamento: o processo pai faz um fork do filho e este filho que realiza o snapshot (uma "foto") do banco](https://miro.medium.com/v2/resize:fit:720/format:webp/1*0fQ1UKmtXqgIVXkTWJLorw.gif)
 
-Se você reparou na raíz do projeto existe um arquivo chamado `redis.conf`, lá
+Se você reparou, na raíz do projeto existe um arquivo chamado `redis.conf`, lá
 podemos configurar nosso servidor redis. Ele também possui comentários muito 
-úteis que os próprios desenvolvedores disponibilizaram para que a comunidade entenda melhor cada parâmetro e se funcionamento interno.
+úteis que os próprios desenvolvedores disponibilizaram para que a comunidade entenda melhor cada parâmetro e seu funcionamento interno.
 
 Abra-o e pesquise por `SNAPSHOTTING` essa seção nos fornece toda a configuração relacionada ao `RDB`, descomente a linha 440 e a mude para `save 5 1`. Ela 
 significa que a cada 5s iremos realizar um snapshot se ao menos uma _key_ mudou.
 
-> WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para expeerimentarmos mais facilmente. 
+> WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para experimentarmos mais facilmente. 
 
 Bacana, a partir de agora vamos utilizar `docker compose`, ele é uma extensão de docker que nos permite declarativamente configurar
 múltiplos containers, se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/). 
@@ -253,9 +253,9 @@ Esse comando copia o arquivo de dump para nosso diretório atual. Com ele podemo
 
 ### AOF
 
-![gif do funcionamento do AOF](https://miro.medium.com/v2/resize:fit:720/format:webp/1*-nu-a_xIAH4OwIVdkszVzA.gif)
+![gif do funcionamento do AOF: cada operação de escrita vira um bloquinho e vai para uma lista de blocos. Quando o servidor é reiniciado os blocos da lista vão sendo consumidos pelo redis para recriar o estado anterior do banco](https://miro.medium.com/v2/resize:fit:720/format:webp/1*-nu-a_xIAH4OwIVdkszVzA.gif)
 
-Um problema de snapshotting é que se o sevidor cair perdemos os dados que foram escritos depois do último snapshot, se não podemos perder nem um dado se quer devemos considerar utilizar AOF.
+Um problema de _snapshotting_ é que se o sevidor cair perdemos os dados que foram escritos depois do último snapshot, se não podemos perder nem um dado se quer devemos considerar utilizar AOF.
 
 Para habilitá-lo vá em `redis.conf` e busque por `APPEND ONLY MODE` essa é a seção de configuração do AOF. Mude a linha `appendonly no` para `appendonly yes`.
 
