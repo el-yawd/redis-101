@@ -52,7 +52,7 @@ docker exec -it redis-stack redis-cli
 
 Como eu disse, redis é um servidor de estrutura de dados, essas estruturas são definidas como `data types`, vamos passar por cima das principais, mas antes disso um adendo: as operações nas estruturas do redis são realizadas através de `commands`; não vai ser possível mostrar todos os `commands` de cada estrutura então se ficar curioso poderá buscar mais sobre cada uma [na documentação de comandos](https://redis.io/docs/latest/commands/):
 
-#### [Strings](https://redis.io/docs/latest/develop/data-types/strings/)
+### [Strings](https://redis.io/docs/latest/develop/data-types/strings/)
 
 A forma mais simples de estrutura de dados no redis é o chave-valor. Chaves são strings e valores também, dentro do _REPL_ digite:
 
