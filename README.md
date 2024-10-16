@@ -103,7 +103,7 @@ LPUSH fila-espera:cafe Alice Bob Joe
 
 > `LPUSH` insere um novo elemento no início da lista (_head_) e `RPUSH` faz o mesmo mas no final da fila (_tail_).
 
-Note que não existe um comando para criar uma lista, simplesmente inserimos um dado, se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsabiliza por criar, isso se aplica para todo data type :).
+Note que não existe um comando para criar uma lista, simplesmente inserimos um dado. Se a lista existe um novo dado é incluído, se não existe nosso querido redis se responsabiliza por criar; isso se aplica para todo data type :).
 
 Além disso, `LPUSH` e `RPUSH` são _comandos variáticos_ o que significa que somos livres para inserir um ou mais elementos de uma só vez.
 
@@ -114,7 +114,7 @@ LPOP fila-espera:cafe
 ```
 > A mesma lógica de pushs se aplica aqui: `LPOP` remove elementos no início e `RPOP` no final.
 
-Para verificarmos elementos de uma lista utlizamos `LRANGE` (sim `L` é usando tanto como _left_ quanto _list_ that's life). 
+Para verificarmos elementos de uma lista utlizamos `LRANGE` (sim `L` é usando tanto como _left_ quanto _list_, that's life). 
 
 ```bash
 LRANGE fila-espera:cafe 0 3
@@ -128,7 +128,7 @@ LRANGE fila-espera:cafe 0 -1
 # Busca todos os elementos da lista
 ```
 
-Um caso de uso comum para lista em redis é mantes o n últimos elementos de alguma coisa. Tweets por exemplo [[5]](https://www.infoq.com/presentations/Real-Time-Delivery-Twitter/). O que queremos é uma _capped collection_ nesse caso uma _capped list_ (literalmente lista limitada), utilizaremos `LTRIM`
+Um caso de uso comum para lista em redis é manter o n últimos elementos de alguma coisa. Tweets por exemplo [[5]](https://www.infoq.com/presentations/Real-Time-Delivery-Twitter/). O que queremos é uma _capped collection_ nesse caso uma _capped list_ (literalmente lista limitada), utilizaremos `LTRIM`
 para fazer isso.
 
 `LTRIM` é muito parecido com `LRANGE` com a única diferença de que `LRANGE` é feito para consultas (logo não modifica a lista) e `LTRIM` literalmente apara tudo o que não estiver dentro do range, exemplo:
@@ -196,15 +196,13 @@ SREM nosql:students Joaozinho
 SMEMBERS nosql:students # Lista todos os elementos da lista
 ```
 
-Para maioria das operações são _O(1)_, contudo para sets grandes
-deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui
-complexidade _O(n)_. 
+Para maioria das operações a complexidade é _O(1)_, contudo para sets grandes
+deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui complexidade _O(n)_. 
 
 ### [Hashes](https://redis.io/docs/latest/develop/data-types/hashes/)
 
 
-Hashes em redis funcionam como uma coleção de `strings`, podemos usa-los 
-para representar objetos básicos dentre outros dados.
+Hashes em redis funcionam como uma coleção de `strings`, podemos usá-los para representar objetos básicos dentre outros dados.
 
 ```bash
 HSET aluno:1 nome Jacob curso "Sistemas de informacao" hobbie "virar lobisomem"
@@ -221,9 +219,9 @@ HGET aluno:1 nome
 # "Jacob"
 ```
 
-> Note: Você deve ter reparado que utilizamos ':' para separar tokens nos nomes, isso é 
-> apenas uma convenção. Nomes e chaves devem ter eles mesmos significado, por exemplo, 'aluno:1' 
-> provavelmente é um aluno com id 1, o redis não faz a mínima ideia desse id sua aplicação que deve
+> NOTE: Você deve ter reparado que utilizamos ':' para separar tokens nos nomes, isso é 
+> apenas uma convenção. Nomes e chaves devem ter eles mesmos significado. Por exemplo, 'aluno:1' 
+> provavelmente é um aluno com id 1, o redis não faz a mínima ideia desse id, portanto sua aplicação deve
 > se responsbilizar por manter um padrão coerente e que não sobrescreva incorretamente dados anteriores.
 
 Também podemos manter contadores em nossos "objetos"
@@ -248,9 +246,9 @@ Lembra quando eu disse que o redis fornecia uma estrutura de dados para usar ín
 Pois bem, _voilà_.
 
 _Sorted sets_ são como um mix entre _Sets_ e _Hashes_, são formados por
-elementos não-repetíveis, porém agora, cada elemento é associado a um _float point_
-chamado _score_ como um _hash_. Este score é utilizado para comparar valores então se:
-`A > B` então `A.score > B.score`. Um fator interessante é que os elementos são guardados
+elementos não-repetíveis, porém agora cada elemento é associado a um _float point_
+chamado _score_ como um _hash_. Este score é utilizado para comparar valores, então se:
+`A > B` logo `A.score > B.score`. Um fator interessante é que os elementos são guardados
 já ordenados, então buscas ordenadas não custam tanto.
 
 Para incluir novos elementos:
@@ -287,7 +285,7 @@ ZRANGE brasileirao:tabela 0 -1 WITHSCORES
 # 8) "4"
 ```
 
-Também podemos realizar comando em scores:
+Podemos realizar comando em scores:
 
 ```bash
 ZRANGEBYSCORE brasileirao:tabela -inf 3 # busca todos os elementos com score entre -infinto e 3.
@@ -308,8 +306,8 @@ ZRANK brasileirao:tabela Palmeiras
 Lembra quando eu disse que redis possui `pesistência opcional`? Vamos ver como configurá-la agora! O Redis tem 4 tipos 
 de persistência:
 
-- **RDB (Redis Database)**: Snapshots que são tirados em intervalos específicos;
-- **AOF (Append Only File)**: Arquivo que faz log de toda operação de escrita, que podem ser replicadas quando o servidor reestarta, reconstruindo
+- **RDB (Redis Database)**: Snapshots que são realizados em intervalos específicos;
+- **AOF (Append Only File)**: Arquivo de log de toda operação de escrita, que podem ser replicadas quando o servidor reinicia, reconstruindo
   seu estado original.
 - **Sem persistência**: Autoexplicativo né. Se o servidor cair não tem jeito de recuperar os dados.
 - **RDB + AOF**: Combinação das estratégias de _logging_ e _snapshotting_
@@ -332,11 +330,11 @@ significa que a cada 5s iremos realizar um snapshot se ao menos uma _key_ mudou.
 
 > WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para experimentarmos mais facilmente. 
 
-Bacana, a partir de agora vamos utilizar `docker compose`, ele é uma extensão de docker que nos permite declarativamente configurar
-múltiplos containers, se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/). 
+Bacana, a partir de agora vamos utilizar `docker compose`, ele é uma extensão de docker que nos permite, declarativamente, configurar
+múltiplos containers. Se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/). 
 
 Pare a instância que estavamos rodando com `docker container stop redis-stack` e
-utilize `docker compose up` e o acesse com `docker compose exec -it redis redis-cli`, para nos certificarmos que estamos com a nova configuração rode:
+utilize `docker compose up` e acesse o novo container com `docker compose exec -it redis redis-cli`. Para nos certificarmos que estamos com a nova configuração rode:
 
 ```bash
 CONFIG GET save
@@ -364,7 +362,7 @@ Para habilitá-lo vá em `redis.conf` e busque por `APPEND ONLY MODE` essa é a 
 
 Resete o servidor, o acesse e faça alguma operação de escrita.
 
-Para recuperar o diretŕio de logs rode:
+Para recuperar o diretório de logs rode:
 
 ```bash
 ❯ docker compose cp redis:data/appendonlydir ./appendonlydir
