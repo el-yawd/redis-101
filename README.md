@@ -350,7 +350,23 @@ Cool, crie uma nova chave e espere 5s. Em outro terminal rode:
 docker compose cp redis:/data/dump.rdb ./dump.rdb
 ```
 
-Esse comando copia o arquivo de dump para nosso diretório atual. Com ele podemos restaurar nossos dados caso o servidor caia :)
+Esse comando copia o arquivo de dump para nosso diretório atual. Com ele podemos restaurar nossos dados caso o servidor caia.
+
+Agora vamos parar o container e apagar sua imagem com: 
+
+```bash
+docker stop redis
+
+docker rm redis
+```
+
+Agora restaure a imagem com `docker compose up`, copie o arquivo para dentro do container: `docker cp ./dump.rdb redis:/data/dump.rdb` e o reinicie com:
+
+```bash
+docker compose restart
+```
+
+Basta entrar no container e verificar os dados que salvamos no dump :)
 
 ### AOF
 
