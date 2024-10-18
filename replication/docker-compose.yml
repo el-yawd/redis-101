@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  redis-master:
+    image: redis:7.4
+    container_name: redis-master
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-master-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - redis-net
+
+  redis-slave-1:
+    image: redis:7.4
+    container_name: redis-slave-1
+    depends_on:
+      - redis-master
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-slave-1-data:/data
+    command: ["redis-server", "--slaveof", "redis-master", "6379"]
+    networks:
+      - redis-net
+
+  redis-slave-2:
+    image: redis:7.4
+    container_name: redis-slave-2
+    depends_on:
+      - redis-master
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis-slave-2-data:/data
+    command: ["redis-server", "--slaveof", "redis-master", "6379"]
+    networks:
+      - redis-net
+
+volumes:
+  redis-master-data:
+  redis-slave-1-data:
+  redis-slave-2-data:
+
+networks:
+  redis-net:
+    driver: bridge

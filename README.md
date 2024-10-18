@@ -395,5 +395,117 @@ Para saber mais sobre o assunto de persistência recomendo começar por [[aqui]]
 
 ## Sistemas Distribuídos
 
-Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados. Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição. 
+Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados. 
+Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição. 
+
+
+
+Legal! Vamos continuar com a seção sobre sistemas distribuídos, explorando conceitos importantes e exemplos práticos usando Docker Compose para facilitar a configuração de ambientes distribuídos.
+
+
+#### Arquivo `sentinel.conf`
+
+O Sentinel monitora os nós Redis e realiza failover se o master falhar. O arquivo de configuração define o nó master e outras configurações de tolerância a falhas.
+
+
+### [Replicação](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/)
+
+Uma forma simples de aumentarmos o _throughput_ é através da replicação. Dividimos nossas intâncias de redis em dois tipos:
+líder (master) e seguidores (slaves). Operações de escrita só podem ser realizadas no lider e este por sua vez replica os dados para seus seguidores. Dessa forma tiramos a carga de leitura de um servidor e distribuimos entre os seguidores, enquanto o líder só se ocupa com a operações de escrita e replicação. Vamos ver isso funcionando.
+
+
+### Passos para executar
+
+Na pasta replication, execute o seguinte comando para iniciar o cluster Redis:
+
+```bash
+docker-compose up
+```
+
+Simples não? Agora abra dois terminais e execute os comandos abaixo, um pra cada terminal:
+
+```bash
+docker exec -it redis-master redis-cli
+
+docker exec -it redis-slave-1 redis-cli 
+```
+
+Tente escrever algo no `redis-slave-1`, vai dar erro, por quê? Como ele é um servidor de réplica 
+somente ações `READ ONLY` podem ser executadas. Ainda no `redis-slave-1` rode:
+
+```bash
+GET melhor-aula
+
+# (nil)
+```
+
+Agora no servidor master rode `SET melhor-aula nosql`, se dermos `GET` em ambos os servidores o dado
+`melhor-aula` estará disponível! 
+
+### [Clustering](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/#create-a-redis-cluster)
+
+Replicação é legal mas ela possui alguns drawbacks: 
+
+- Muita dependencia do master;
+- Não escala horizontalmente por que a escrita é "engargalada" pela master;
+- Se algum nó cai o redis não se recupera sozinho
+
+Uma das maneiras de resolver isso é com [sentinelas](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/) 
+que nada mais são que outros processos que ficam "vigiando" nosso replica-set, ele cuida de todo sistema de eleição de líder,
+notificação, etc. ~Não falaremos dele aqui por que o escritor perdeu 3 anos de vida útil tentando configurar~ Fique livre para estudar esse modelo :)
+
+Outra forma é com clusterização, com ele o redis faz automagicamente um processo de _sharding_ que nada mais é que separar sua base de dados entre os nós, ao invés de cada um ter uma cópia da base toda. Assim, novos nós podem ser adicionados e removidos da rede de forma a reorganizar os dados facilmente.
+
+![Imagem de exemplo do schema de clusterização: um cliente pesquisa por três keys onde cada uma está em um shard, cada shard é composto por duas instâncias de redis: um master e um slave](https://www.aeraki.net/blog/2023/manage-redis-traffic-with-istio-and-aeraki/redis-cluster.png)
+
+
+Para iniciar nosso cluster redis em sua máquina vá para o diretório `cluster` e rode `docker compose up`.
+Para iniciar o cluster, rode:
+
+```bash
+docker exec -it cluster-redis-node-1-1 redis-cli --cluster create \
+  redis-node-1:6379 \
+  redis-node-2:6379 \
+  redis-node-3:6379 \
+  redis-node-4:6379 \
+  redis-node-5:6379 \
+  redis-node-6:6379 \
+  --cluster-replicas 2
+```
+
+Ele irá criar nosso cluster com os nodes passados com um fator de replicação de 2, o que significa que cada
+escrita deve ser replicada para pelo menos dois nós. 
+
+Conecte no primeiro nó com `docker exec -it cluster-redis-node-1-1 redis-cli -c` e rode:
+
+```bash
+SET key1 "value1"
+SET key2 "value2"
+SET key3 "value3"
+SET key4 "value4"
+```
+
+Para algumas chaves você deve ter recebido `-> Redirect to slot <slot_number> located at <slot_host>` antes do `OK` isso significa que a chave que setamos não se encontra no `node-1`, porém se dermos get em uma chave "movida" conseguimos, por quê? Reparou no `-c` que passamos junto ao `redis-cli`? Ele torna o nosso redis client ciente que está em ambiente de cluster, se tentarmos acessar sem o `-c` iremos receber um `(error) MOVED <slot_number> <slot_host>`
+
+Podemos consultar qual keyslot uma chave pertence com `CLUSTER KEYSLOT <keyslot>`, para sabermos quais nodes
+pertencem ao nosso cluster podemos rodar: `CLUSTER NODES`.  
+
+Vamos adicionar um novo nó no cluster. Dentro do arquivo `docker-compose.yml` descomente o serviço `redis-node-7` e execute: `docker compose up redis-node-7`
+
+Agora acesse o nó 1 com `docker exec -it cluster-redis-node-1-1 bash` e rode `redis-cli --cluster add-node redis-node-7:6379 redis-node-1:6379`. Entrando no cliente redis com `redis-cli` podemos pesquisar pelos nós como explicado acima, e verificar que ele foi de fato aceito. Agora podemos redistribuir as chaves rodando: `redis-cli --cluster rebalance redis-node-1:6379`
+
+### Redis Insight 
+
+Redis Insight é uma ferramenta web que nos permite interagir com o redis de forma intuitiva e prática. Eu sei eu sei, poderíamos estar usando ela desde o começo mas onde está a didática em não sofrer?
+
+Para roda-lo basta descomentar o serviço de redis-insight no docker-compose e rodar: `docker compose up redis-insight`, ele estará exposto na porta `8001`.
+
+Por lá podemos cadastrar nossos nós do cluster e importar os dados que estão na raiz do diretório `cluster`.
+
+## Conclusão
+
+Redis é uma tecnologia bem interessante, embora simples ela nos dá flexibilidade e performance para resolver problemas de escala no mundo real, sem dúvidas uma ótima carta na manga para qualquer desenvolvedor.
+
+Espero que você tenha gostado desse mini-curso, se ele foi útil para você de alguma forma não esqueça de deixar uma estrelinha e compartilhar com os amigos. Até mais e `accelerate, anon`. 
+
 

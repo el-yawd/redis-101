@@ -1,0 +1,99 @@
+services:
+  redis-node-1:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6379:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-1"
+
+  redis-node-2:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6380:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-2"
+
+  redis-node-3:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6381:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-3"
+
+  redis-node-4:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6382:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-4"
+
+  redis-node-5:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6383:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-5"
+
+  redis-node-6:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6384:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-6"
+
+  redis-node-7:
+    image: redis:7.4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./conf:/usr/local/etc/redis/
+    ports:
+      - "6385:6379"
+    networks:
+      - redis-cluster
+    environment:
+      - "IP=redis-node-7"
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - "8001:5540"
+    networks:
+      - redis-cluster
+    environment:
+      - "REDIS_HOST=redis-node-1"
+      - "REDIS_PORT=6379"
+    restart: unless-stopped
+
+networks:
+  redis-cluster:
+    driver: bridge
