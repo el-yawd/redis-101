@@ -398,16 +398,6 @@ Para saber mais sobre o assunto de persistência recomendo começar por [[aqui]]
 Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados. 
 Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição. 
 
-
-
-Legal! Vamos continuar com a seção sobre sistemas distribuídos, explorando conceitos importantes e exemplos práticos usando Docker Compose para facilitar a configuração de ambientes distribuídos.
-
-
-#### Arquivo `sentinel.conf`
-
-O Sentinel monitora os nós Redis e realiza failover se o master falhar. O arquivo de configuração define o nó master e outras configurações de tolerância a falhas.
-
-
 ### [Replicação](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/)
 
 Uma forma simples de aumentarmos o _throughput_ é através da replicação. Dividimos nossas intâncias de redis em dois tipos:
