@@ -71,28 +71,28 @@ services:
     environment:
       - "IP=redis-node-6"
 
-  redis-node-7:
-    image: redis:7.4
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
-    volumes:
-      - ./conf:/usr/local/etc/redis/
-    ports:
-      - "6385:6379"
-    networks:
-      - redis-cluster
-    environment:
-      - "IP=redis-node-7"
+  # redis-node-7:
+  #   image: redis:7.4
+  #   command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  #   volumes:
+  #     - ./conf:/usr/local/etc/redis/
+  #   ports:
+  #     - "6385:6379"
+  #   networks:
+  #     - redis-cluster
+  #   environment:
+  #     - "IP=redis-node-7"
 
-  redis-insight:
-    image: redis/redisinsight:latest
-    ports:
-      - "8001:5540"
-    networks:
-      - redis-cluster
-    environment:
-      - "REDIS_HOST=redis-node-1"
-      - "REDIS_PORT=6379"
-    restart: unless-stopped
+  # redis-insight:
+  #   image: redis/redisinsight:latest
+  #   ports:
+  #     - "8001:5540"
+  #   networks:
+  #     - redis-cluster
+  #   environment:
+  #     - "REDIS_HOST=redis-node-1"
+  #     - "REDIS_PORT=6379"
+  #   restart: unless-stopped
 
 networks:
   redis-cluster:
