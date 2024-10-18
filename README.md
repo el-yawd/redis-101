@@ -401,12 +401,11 @@ Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se pr
 ### [Replicação](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/)
 
 Uma forma simples de aumentarmos o _throughput_ é através da replicação. Dividimos nossas intâncias de redis em dois tipos:
-líder (master) e seguidores (slaves). Operações de escrita só podem ser realizadas no lider e este por sua vez replica os dados para seus seguidores. Dessa forma tiramos a carga de leitura de um servidor e distribuimos entre os seguidores, enquanto o líder só se ocupa com a operações de escrita e replicação. Vamos ver isso funcionando.
-
+líder (master) e seguidores (slaves). Operações de escrita só podem ser realizadas no líder e este por sua vez replica os dados para seus seguidores. Dessa forma, tiramos a carga de leitura de um servidor e distribuimos entre os seguidores, enquanto o líder só se ocupa com as operações de escrita e replicação. Vamos ver isso funcionando.
 
 ### Passos para executar
 
-Na pasta replication, execute o seguinte comando para iniciar o cluster Redis:
+Na pasta replication, execute o seguinte comando para iniciar o replica-set:
 
 ```bash
 docker-compose up
@@ -449,7 +448,7 @@ Outra forma é com clusterização, com ele o redis faz automagicamente um proce
 ![Imagem de exemplo do schema de clusterização: um cliente pesquisa por três keys onde cada uma está em um shard, cada shard é composto por duas instâncias de redis: um master e um slave](https://www.aeraki.net/blog/2023/manage-redis-traffic-with-istio-and-aeraki/redis-cluster.png)
 
 
-Para iniciar nosso cluster redis em sua máquina vá para o diretório `cluster` e rode `docker compose up`.
+Para rodar as instâncias redis em sua máquina, vá para o diretório `cluster` e rode `docker compose up`.
 Para iniciar o cluster, rode:
 
 ```bash
@@ -475,9 +474,11 @@ SET key3 "value3"
 SET key4 "value4"
 ```
 
-Para algumas chaves você deve ter recebido `-> Redirect to slot <slot_number> located at <slot_host>` antes do `OK` isso significa que a chave que setamos não se encontra no `node-1`, porém se dermos get em uma chave "movida" conseguimos, por quê? Reparou no `-c` que passamos junto ao `redis-cli`? Ele torna o nosso redis client ciente que está em ambiente de cluster, se tentarmos acessar sem o `-c` iremos receber um `(error) MOVED <slot_number> <slot_host>`
+Para algumas chaves você deve ter recebido `-> Redirect to slot <slot_number> located at <slot_host>` antes do `OK`, isso significa que a chave que setamos não se encontra no `node-1`, porém se dermos `GET` em uma chave "movida" conseguimos, por quê? 
 
-Podemos consultar qual keyslot uma chave pertence com `CLUSTER KEYSLOT <keyslot>`, para sabermos quais nodes
+Reparou no `-c` que passamos junto ao `redis-cli`? Ele torna o nosso _redis client_ ciente que está em ambiente de cluster, se tentarmos acessar sem o `-c` iremos receber um `(error) MOVED <slot_number> <slot_host>`
+
+Podemos consultar qual _keyslot_ uma chave pertence com `CLUSTER KEYSLOT <keyslot>`, para sabermos quais nodes
 pertencem ao nosso cluster podemos rodar: `CLUSTER NODES`.  
 
 Vamos adicionar um novo nó no cluster. Dentro do arquivo `docker-compose.yml` descomente o serviço `redis-node-7` e execute: `docker compose up redis-node-7`
