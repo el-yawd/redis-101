@@ -462,8 +462,8 @@ docker exec -it cluster-redis-node-1-1 redis-cli --cluster create \
   --cluster-replicas 1
 ```
 
-Ele irá criar nosso cluster com os nodes passados com um fator de replicação de 2, o que significa que cada
-escrita deve ser replicada para pelo menos dois nós. 
+Ele irá criar nosso cluster com os nodes passados com um fator de replicação de 1, o que significa que cada
+escrita deve ser replicada para pelo menos 1 nó.
 
 Conecte no primeiro nó com `docker exec -it cluster-redis-node-1-1 redis-cli -c` e rode:
 
