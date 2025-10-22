@@ -14,10 +14,6 @@
   <h1 align="center"><img src="https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg" alt="Logo do Redis" width="220"></h1>
 
   <p align="center">
-    <br />
-    <a href="#ROADMAP"><strong>Explore a documentação »</strong></a>
-    <br />
-    <br />
     <a href="https://github.com/el-yawd/redis-101/issues/new">Report Bug</a>
     ·
     <a href="https://github.com/el-yawd/redis-101/issues/new">Request Feature</a>
