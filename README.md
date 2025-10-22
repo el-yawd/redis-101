@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/he4rt/4noobs" target="_blank">
-    <img src="../.github/header_4noobs.svg">
+    <img src="https://raw.githubusercontent.com/he4rt/4noobs/master/.github/header_4noobs.svg">
   </a>
 </p>
 
@@ -11,7 +11,7 @@
 <p align="center">
   <h2 align="center">Redis 101</h2>
 
-  <h1 align="center"><img src="https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg" alt="Logo do Redis" width="120"></h1>
+  <h1 align="center"><img src="https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg" alt="Logo do Redis" width="220"></h1>
 
   <p align="center">
     <br />
@@ -39,8 +39,8 @@ você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL.
 ## ROADMAP
 
 - [Introdução](#Introdução)
-- [Conteúdo 2](link-segunda-parte)
-- [Conteúdo 3](link-terceira-parte)
+- [Instalação](#Instalação)
+- [Primeiros Passos](#Primeiros passos)
   - [Sub-conteúdo](link-sub-conteudo)
   	- [Sub-conteúdo](link-sub-conteudo)
   - [Sub-conteúdo](link-sub-conteudo)
