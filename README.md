@@ -41,13 +41,39 @@ você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL.
 - [Introdução](#Introdução)
 - [Instalação](#Instalação)
 - [Primeiros Passos](#Primeiros-passos)
-  - [Sub-conteúdo](link-sub-conteudo)
-  	- [Sub-conteúdo](link-sub-conteudo)
-  - [Sub-conteúdo](link-sub-conteudo)
-- [Conteúdo 4](link-quarta-parte)
-- [Conteúdo 5](link-quinta-parte)
-  - [Sub-conteúdo](link-sub-conteudo)
-  - [Sub-conteúdo](link-sub-conteudo)
+  - [Data Types](#Data-types)
+  	- [Strings](#Strings)
+    - [Lists](#Lists)
+    - [Sets](#Sets)
+    - [Hashes](#Hashes)
+    - [Sorted Sets](#Sorted-Sets)
+- [Persistência](#Persistência)
+  - [RDB](#RDP)
+  - [AOF](#AOF)
+- [Sistemas Distribuídos](#Sistemas-Distribuídos)
+  - [Replicação](#Replicação)
+  - [Clustering](#Clustering)
+- [Redis Insight](#Redis-Insight)
+- [Conclusão](#Conclusão)
+
+<!-- CONTRIBUTING -->
+
+## Como Contribuir
+
+Contribuições fazem com que a comunidade open source seja um lugar incrível para aprender, inspirar e criar. Todas contribuições
+são **extremamente apreciadas**
+
+1. Realize um Fork do projeto
+2. Crie um branch com a nova feature (`git checkout -b feature/featureBraba`)
+3. Realize o Commit (`git commit -m 'Adicionado conteudo brabo'`)
+4. Realize o Push no Branch (`git push origin feature/featureBraba`)
+5. Abra um Pull Request
+
+## Autores
+
+- **Diego Reis** - _Main author_ - [@el_yawd](https://x.com/el_yawd)
+
+---
 
 # Introdução
 
