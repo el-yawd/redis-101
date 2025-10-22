@@ -1,6 +1,30 @@
-# redis-101
+<!-- Logo 4noobs -->
 
-![logo do redis](https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg)
+<p align="center">
+  <a href="https://github.com/he4rt/4noobs" target="_blank">
+    <img src="../.github/header_4noobs.svg">
+  </a>
+</p>
+
+<!-- Title -->
+
+<p align="center">
+  <h2 align="center">Redis 101</h2>
+
+  <h1 align="center"><img src="https://www.logo.wine/a/logo/Redis/Redis-Logo.wine.svg" alt="Logo do Redis" width="120"></h1>
+
+  <p align="center">
+    <br />
+    <a href="#ROADMAP"><strong>Explore a documentação »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/el-yawd/redis-101/issues/new">Report Bug</a>
+    ·
+    <a href="https://github.com/el-yawd/redis-101/issues/new">Request Feature</a>
+  </p>
+</p>
+
+ <!-- ABOUT THE PROJECT -->
 
 Bem-vindo ao minicurso de redis!
 
@@ -10,11 +34,26 @@ Iremos abordar sobre sua arquitetura geral, tipos de dados, operações básicas
 Esse minicurso não vai esgotar tudo o que se têm para dizer sobre redis, então recomendo fortemente que
 você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL. Bons lugares para se começar: [documentação oficial](https://redis.io/docs/latest/), [código fonte](https://github.com/redis/redis) e [wikipedia](https://en.wikipedia.org/wiki/Redis). Espero que goste :)
 
+<!-- ROADMAP OF PROJECT -->
+
+## ROADMAP
+
+- [Introdução](#Introdução)
+- [Conteúdo 2](link-segunda-parte)
+- [Conteúdo 3](link-terceira-parte)
+  - [Sub-conteúdo](link-sub-conteudo)
+  	- [Sub-conteúdo](link-sub-conteudo)
+  - [Sub-conteúdo](link-sub-conteudo)
+- [Conteúdo 4](link-quarta-parte)
+- [Conteúdo 5](link-quinta-parte)
+  - [Sub-conteúdo](link-sub-conteudo)
+  - [Sub-conteúdo](link-sub-conteudo)
+
 # Introdução
 
-Mas afinal, o que é o redis? 
+Mas afinal, o que é o redis?
 
-Ele é um banco de dados _in-memory_ com pesistência opcional bem simples _(yet powerful)_. Você pode pensar nele como um **servidor de estrutura de dados**, isso significa que: 
+Ele é um banco de dados _in-memory_ com pesistência opcional bem simples _(yet powerful)_. Você pode pensar nele como um **servidor de estrutura de dados**, isso significa que:
 
 > O redis provê acesso a estruturas de dados mutáveis através de um conjunto de comandos que são enviados usando um modelo cliente-servidor. Dessa forma, diferentes processos podem realizar pesquisas e modificações nas mesmas estruturas de dados de forma compartilhada. [[1]](https://github.com/redis/redis?tab=readme-ov-file#what-is-redis)
 
@@ -23,9 +62,9 @@ Por conta disso ele é MUITO utilizado como servidor de cache [[2]](https://www.
 
 # Instalação
 
-Vou ser sincero, não quero perder tempo com isso, siga as [instruções de instalação](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) e seja feliz. 
+Vou ser sincero, não quero perder tempo com isso, siga as [instruções de instalação](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) e seja feliz.
 
-Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar: 
+Durante o minicurso irei utilizar docker, se você ~ainda~ não têm instalado vai lá no [docker.docs](https://docs.docker.com/engine/install/) e instala. Voltou? Ótimo! Para rodar o redis basta executar:
 
 ```bash
     docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
@@ -46,7 +85,7 @@ Para se conectar no _REPL_ do servidor redis basta rodar:
 docker exec -it redis-stack redis-cli
 ```
 
-> INFO `redis-cli` é a ferramenta de linha de comando do redis. Você pode saber mais sobre ela [aqui](https://redis.io/docs/latest/operate/rs/references/cli-utilities/redis-cli/) 
+> INFO `redis-cli` é a ferramenta de linha de comando do redis. Você pode saber mais sobre ela [aqui](https://redis.io/docs/latest/operate/rs/references/cli-utilities/redis-cli/)
 
 ### [Data Types](https://redis.io/docs/latest/develop/data-types)
 
@@ -71,19 +110,19 @@ GET melhor-aula
 > WARNING Se rodarmos `SET` quando uma chave já existe, seu valor anterior é sobrescrito. Para
 > evitar esse comportamento é necessário passar o parâmetro `nx` no final do comando.
 
-E você pode usar qualquer string como valor (com tamanho de até 512MB), até mesmo imagens! 
+E você pode usar qualquer string como valor (com tamanho de até 512MB), até mesmo imagens!
 
-Imagine que está desenvolvendo uma rede social com altos requerimentos de escalabilidade e precisa guardar quantos views um post possui, você provavelmente estará usando vários serviços, espalhados no mundo todo. Como garantir que **diferentes serviços compartilhem esse dado**? 
+Imagine que está desenvolvendo uma rede social com altos requerimentos de escalabilidade e precisa guardar quantos views um post possui, você provavelmente estará usando vários serviços, espalhados no mundo todo. Como garantir que **diferentes serviços compartilhem esse dado**?
 
 Yup, você acertou, com redis;
 
 O comando `INCR` associa uma chave a um valor numérico, e toda vez que `INCR` é chamado com a chave ele incrementa +1 no valor atual, por exemplo:
 
 ```bash
-INCR user:post-1:views 
+INCR user:post-1:views
 ```
 
-Execute várias vezes, você verá o valor incrementando. 
+Execute várias vezes, você verá o valor incrementando.
 
 ```bash
 INCRBY user:post-1:views 42
@@ -93,7 +132,7 @@ Incrementa o valor +42, (você também pode incrementar números negativos).
 
 ### [Lists](https://redis.io/docs/latest/develop/data-types/lists/)
 
-Listas em redis são [listas ligadas](https://en.wikipedia.org/wiki/Linked_list) com ponteiros para o início e final da fila, isso significa que operações de _pop_ e _push_ são feitas em _O(1)_. O seu _trade-off_ são operações que utilizam índices, pois cria a necessidade de percorrer cada elemento da lista. O redis fornece alternativas caso necessitemos utilizar indíces mas isso vai ficar pra depois :) 
+Listas em redis são [listas ligadas](https://en.wikipedia.org/wiki/Linked_list) com ponteiros para o início e final da fila, isso significa que operações de _pop_ e _push_ são feitas em _O(1)_. O seu _trade-off_ são operações que utilizam índices, pois cria a necessidade de percorrer cada elemento da lista. O redis fornece alternativas caso necessitemos utilizar indíces mas isso vai ficar pra depois :)
 
 Para inserirmos um novo elemento em uma lista utilizamos o comando `LPUSH` ou `RPUSH`, por exemplo:
 
@@ -110,11 +149,11 @@ Além disso, `LPUSH` e `RPUSH` são _comandos variáticos_ o que significa que s
 Para removermos um elemento da lista utilizamos:
 
 ```bash
-LPOP fila-espera:cafe 
+LPOP fila-espera:cafe
 ```
 > A mesma lógica de pushs se aplica aqui: `LPOP` remove elementos no início e `RPOP` no final.
 
-Para verificarmos elementos de uma lista utlizamos `LRANGE` (sim `L` é usando tanto como _left_ quanto _list_, that's life). 
+Para verificarmos elementos de uma lista utlizamos `LRANGE` (sim `L` é usando tanto como _left_ quanto _list_, that's life).
 
 ```bash
 LRANGE fila-espera:cafe 0 3
@@ -141,7 +180,7 @@ LRANGE last:3:custumers 0 2
 LPUSH last:3:custumers Paul
 
 LTRIM last:3:custumers 0 2
-# cuidado com erros off-by-one 
+# cuidado com erros off-by-one
 
 LRANGE last:3:custumers 0 2
 ```
@@ -197,7 +236,7 @@ SMEMBERS nosql:students # Lista todos os elementos da lista
 ```
 
 Para maioria das operações a complexidade é _O(1)_, contudo para sets grandes
-deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui complexidade _O(n)_. 
+deve-se utilizar o comando _SMEMBERS_ com cuidado, já que ele possui complexidade _O(n)_.
 
 ### [Hashes](https://redis.io/docs/latest/develop/data-types/hashes/)
 
@@ -219,8 +258,8 @@ HGET aluno:1 nome
 # "Jacob"
 ```
 
-> NOTE: Você deve ter reparado que utilizamos ':' para separar tokens nos nomes, isso é 
-> apenas uma convenção. Nomes e chaves devem ter eles mesmos significado. Por exemplo, 'aluno:1' 
+> NOTE: Você deve ter reparado que utilizamos ':' para separar tokens nos nomes, isso é
+> apenas uma convenção. Nomes e chaves devem ter eles mesmos significado. Por exemplo, 'aluno:1'
 > provavelmente é um aluno com id 1, o redis não faz a mínima ideia desse id, portanto sua aplicação deve
 > se responsbilizar por manter um padrão coerente e que não sobrescreva incorretamente dados anteriores.
 
@@ -242,7 +281,7 @@ HGETALL aluno:1
 
 ## [Sorted Sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/)
 
-Lembra quando eu disse que o redis fornecia uma estrutura de dados para usar índices. 
+Lembra quando eu disse que o redis fornecia uma estrutura de dados para usar índices.
 Pois bem, _voilà_.
 
 _Sorted sets_ são como um mix entre _Sets_ e _Hashes_, são formados por
@@ -269,7 +308,7 @@ ZREVRANGE brasileirao:tabela 0 -1
 # 4) "Botafogo"
 ```
 
-Podemos passar o argumento `WITHSCORES` nos comandos de range para também 
+Podemos passar o argumento `WITHSCORES` nos comandos de range para também
 devolver os ranges:
 
 ```bash
@@ -303,7 +342,7 @@ ZRANK brasileirao:tabela Palmeiras
 
 ## Persistência
 
-Lembra quando eu disse que redis possui `pesistência opcional`? Vamos ver como configurá-la agora! O Redis tem 4 tipos 
+Lembra quando eu disse que redis possui `pesistência opcional`? Vamos ver como configurá-la agora! O Redis tem 4 tipos
 de persistência:
 
 - **RDB (Redis Database)**: Snapshots que são realizados em intervalos específicos;
@@ -322,16 +361,16 @@ Redis é _single-threaded_ então como podemos fazer o snapshot sem bloquear a _
 ![gif explicando seu funcionamento: o processo pai faz um fork do filho e este filho que realiza o snapshot (uma "foto") do banco](https://miro.medium.com/v2/resize:fit:720/format:webp/1*0fQ1UKmtXqgIVXkTWJLorw.gif)
 
 Se você reparou, na raíz do projeto existe um arquivo chamado `redis.conf`, lá
-podemos configurar nosso servidor redis. Ele também possui comentários muito 
+podemos configurar nosso servidor redis. Ele também possui comentários muito
 úteis que os próprios desenvolvedores disponibilizaram para que a comunidade entenda melhor cada parâmetro e seu funcionamento interno.
 
-Abra-o e pesquise por `SNAPSHOTTING` essa seção nos fornece toda a configuração relacionada ao `RDB`, descomente a linha 440 e a mude para `save 5 1`. Ela 
+Abra-o e pesquise por `SNAPSHOTTING` essa seção nos fornece toda a configuração relacionada ao `RDB`, descomente a linha 440 e a mude para `save 5 1`. Ela
 significa que a cada 5s iremos realizar um snapshot se ao menos uma _key_ mudou.
 
-> WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para experimentarmos mais facilmente. 
+> WARNING Essa é uma quantidade excessiva de snapshotting, ela é apenas para experimentarmos mais facilmente.
 
 Bacana, a partir de agora vamos utilizar `docker compose`, ele é uma extensão de docker que nos permite, declarativamente, configurar
-múltiplos containers. Se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/). 
+múltiplos containers. Se não o tiver basta seguir a [[documentação]](https://docs.docker.com/compose/install/).
 
 Pare a instância que estavamos rodando com `docker container stop redis-stack` e
 utilize `docker compose up` e acesse o novo container com `docker compose exec -it redis redis-cli`. Para nos certificarmos que estamos com a nova configuração rode:
@@ -352,7 +391,7 @@ docker compose cp redis:/data/dump.rdb ./dump.rdb
 
 Esse comando copia o arquivo de dump para nosso diretório atual. Com ele podemos restaurar nossos dados caso o servidor caia.
 
-Agora vamos parar o container e apagar sua imagem com: 
+Agora vamos parar o container e apagar sua imagem com:
 
 ```bash
 docker stop redis
@@ -389,14 +428,14 @@ se vermos o conteúdo desse diretório com `ls appendonlydir` veremos que temos 
 - `appendonly.aof.1.base.rdb`: É um snapshot de todo o banco no momento em que esse arquivo foi criado.
 - `appendonly.aof.1.incr.aof`: Todos os comandos que alteraram o banco que foram rodados depois do snapshot.
 - `appendonly.aof.manifest`: Gerencia os outros arquivos e garante a ordem em que devem ser executados.
-  
+
 Para saber mais sobre o assunto de persistência recomendo começar por [[aqui]](https://medium.com/redis-with-raphael-de-lio/understanding-persistence-in-redis-aof-rdb-on-docker-dcc176ea439) e [[aqui]](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/).
 
 
 ## Sistemas Distribuídos
 
-Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados. 
-Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição. 
+Tudo o que vimos até agora acontece em uma instância de redis, manipulação de estruturas de dados e recuperação de dados.
+Mas e se quisermos garantir um downtime baixo com alta disponibilidade? Ou se precisamos aumentar o _throughput_? Ai que entra a distribuição.
 
 ### [Replicação](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/)
 
@@ -416,10 +455,10 @@ Simples não? Agora abra dois terminais e execute os comandos abaixo, um pra cad
 ```bash
 docker exec -it redis-master redis-cli
 
-docker exec -it redis-slave-1 redis-cli 
+docker exec -it redis-slave-1 redis-cli
 ```
 
-Tente escrever algo no `redis-slave-1`, vai dar erro, por quê? Como ele é um servidor de réplica 
+Tente escrever algo no `redis-slave-1`, vai dar erro, por quê? Como ele é um servidor de réplica
 somente ações `READ ONLY` podem ser executadas. Ainda no `redis-slave-1` rode:
 
 ```bash
@@ -429,17 +468,17 @@ GET melhor-aula
 ```
 
 Agora no servidor master rode `SET melhor-aula nosql`, se dermos `GET` em ambos os servidores o dado
-`melhor-aula` estará disponível! 
+`melhor-aula` estará disponível!
 
 ### [Clustering](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/#create-a-redis-cluster)
 
-Replicação é legal mas ela possui alguns drawbacks: 
+Replicação é legal mas ela possui alguns drawbacks:
 
 - Muita dependencia do master;
 - Não escala horizontalmente por que a escrita é "engargalada" pela master;
 - Se algum nó cai o redis não se recupera sozinho
 
-Uma das maneiras de resolver isso é com [sentinelas](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/) 
+Uma das maneiras de resolver isso é com [sentinelas](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/)
 que nada mais são que outros processos que ficam "vigiando" nosso replica-set, ele cuida de todo sistema de eleição de líder,
 notificação, etc. ~Não falaremos dele aqui por que o escritor perdeu 3 anos de vida útil tentando configurar~ Fique livre para estudar esse modelo :)
 
@@ -474,18 +513,18 @@ SET key3 "value3"
 SET key4 "value4"
 ```
 
-Para algumas chaves você deve ter recebido `-> Redirect to slot <slot_number> located at <slot_host>` antes do `OK`, isso significa que a chave que setamos não se encontra no `node-1`, porém se dermos `GET` em uma chave "movida" conseguimos, por quê? 
+Para algumas chaves você deve ter recebido `-> Redirect to slot <slot_number> located at <slot_host>` antes do `OK`, isso significa que a chave que setamos não se encontra no `node-1`, porém se dermos `GET` em uma chave "movida" conseguimos, por quê?
 
 Reparou no `-c` que passamos junto ao `redis-cli`? Ele torna o nosso _redis client_ ciente que está em ambiente de cluster, se tentarmos acessar sem o `-c` iremos receber um `(error) MOVED <slot_number> <slot_host>`
 
 Podemos consultar qual _keyslot_ uma chave pertence com `CLUSTER KEYSLOT <keyslot>`, para sabermos quais nodes
-pertencem ao nosso cluster podemos rodar: `CLUSTER NODES`.  
+pertencem ao nosso cluster podemos rodar: `CLUSTER NODES`.
 
 Vamos adicionar um novo nó no cluster. Dentro do arquivo `docker-compose.yml` descomente o serviço `redis-node-7` e execute: `docker compose up redis-node-7`
 
 Agora acesse o nó 1 com `docker exec -it cluster-redis-node-1-1 bash` e rode `redis-cli --cluster add-node redis-node-7:6379 redis-node-1:6379`. Entrando no cliente redis com `redis-cli` podemos pesquisar pelos nós como explicado acima, e verificar que ele foi de fato aceito. Agora podemos redistribuir as chaves rodando: `redis-cli --cluster rebalance redis-node-1:6379`
 
-### Redis Insight 
+### Redis Insight
 
 Redis Insight é uma ferramenta web que nos permite interagir com o redis de forma intuitiva e prática. Eu sei eu sei, poderíamos estar usando ela desde o começo mas onde está a didática em não sofrer?
 
@@ -497,6 +536,4 @@ Por lá podemos cadastrar nossos nós do cluster e importar os dados que estão 
 
 Redis é uma tecnologia bem interessante, embora simples ela nos dá flexibilidade e performance para resolver problemas de escala no mundo real, sem dúvidas uma ótima carta na manga para qualquer desenvolvedor.
 
-Espero que você tenha gostado desse mini-curso, se ele foi útil para você de alguma forma não esqueça de deixar uma estrelinha e compartilhar com os amigos. Até mais e `accelerate, anon`. 
-
-
+Espero que você tenha gostado desse mini-curso, se ele foi útil para você de alguma forma não esqueça de deixar uma estrelinha e compartilhar com os amigos. Até mais e `accelerate, anon`.
