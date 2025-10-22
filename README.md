@@ -40,7 +40,7 @@ você busque saber mais por si mesmo e explore esse mundo ~muito foda~ de NoSQL.
 
 - [Introdução](#Introdução)
 - [Instalação](#Instalação)
-- [Primeiros Passos](#Primeiros passos)
+- [Primeiros Passos](#Primeiros-passos)
   - [Sub-conteúdo](link-sub-conteudo)
   	- [Sub-conteúdo](link-sub-conteudo)
   - [Sub-conteúdo](link-sub-conteudo)
